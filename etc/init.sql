@@ -1,4 +1,3 @@
--- just for testing purposes
-CREATE USER freddie;
-CREATE DATABASE freddie;
-GRANT ALL PRIVILEGES ON DATABASE freddie TO freddie;
+#!/bin/bash
+psql -U postgres postgres -c "CREATE TABLE lend (id SERIAL NOT NULL, algpunkt TEXT)"
+psql -U postgres postgres -c "INSERT INTO lend (algpunkt) VALUES ('Tartu')"
