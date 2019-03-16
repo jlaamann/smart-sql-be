@@ -1,2 +1,3 @@
 #!/bin/bash
-todo
+sudo docker kill $1
+sudo docker rm $1
