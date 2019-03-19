@@ -1,3 +1,3 @@
 #!/bin/bash
-docker kill $1
-docker rm $1
+sudo docker kill $1;
+sudo docker rm $1;

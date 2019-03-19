@@ -17,9 +17,14 @@ public class ExerciseServiceImpl implements ExerciseService {
     @Override
     public ExerciseResult validateSql(ExerciseValidationModel params) {
         Exercise exercise = exerciseRepository.findById(params.getId()).get();
+        String containerName = dockerService.getContainer();
+        ExerciseResult result;
         if (params.getStatementType() == StatementType.SELECT) {
-            return new ExerciseResult(QueryResult.OK);
+            result =  new ExerciseResult(QueryResult.OK);
+        } else {
+            result = new ExerciseResult(QueryResult.FAIL);
         }
-        return new ExerciseResult(QueryResult.FAIL);
+        dockerService.removeContainer(containerName);
+        return result;
     }
 }
