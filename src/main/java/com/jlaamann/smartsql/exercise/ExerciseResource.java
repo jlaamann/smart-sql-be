@@ -1,7 +1,6 @@
 package com.jlaamann.smartsql.exercise;
 
 import com.jlaamann.smartsql.docker.DockerService;
-import com.jlaamann.smartsql.exercise.model.Exercise;
 import com.jlaamann.smartsql.exercise.model.ExerciseResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +15,13 @@ public class ExerciseResource {
     @GetMapping("/exercise/test")
     ExerciseResult test() {
         dockerService.getContainer();
+        return new ExerciseResult(QueryResult.OK);
+    }
+
+    @GetMapping("/exercise/test2")
+    ExerciseResult test2() {
+        String name = dockerService.getContainer();
+        dockerService.removeContainer(name);
         return new ExerciseResult(QueryResult.OK);
     }
 
