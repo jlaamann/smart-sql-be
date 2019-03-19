@@ -19,7 +19,7 @@ public class DockerServiceImpl implements DockerService {
     @Override
     public String getContainer() {
         String containerName = getContainerName();
-        try { // todo vacant port
+        try {
             List<String> command = Arrays.asList("/bin/bash", "./docker_startup.sh", containerName, getVacantPort());
             CommandLineUtil.runCommand(command, getScriptPath());
         } catch (IOException | InterruptedException e) {
@@ -33,7 +33,7 @@ public class DockerServiceImpl implements DockerService {
         return UUID.randomUUID().toString().substring(0, 8);
     }
 
-    private String getVacantPort() throws IOException{
+    private String getVacantPort() throws IOException {
         ServerSocket socket = new ServerSocket(0);
         socket.setReuseAddress(true);
         return String.valueOf(socket.getLocalPort());

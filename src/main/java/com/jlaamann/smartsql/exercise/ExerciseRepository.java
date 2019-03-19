@@ -3,6 +3,8 @@ package com.jlaamann.smartsql.exercise;
 import com.jlaamann.smartsql.exercise.model.Exercise;
 import org.springframework.data.repository.CrudRepository;
 
-public interface ExerciseRepository extends CrudRepository<Exercise, Long> {
+import java.util.List;
 
+public interface ExerciseRepository extends CrudRepository<Exercise, Long> {
+    List<Exercise> findAllByChapterId(Long chapterId);
 }
