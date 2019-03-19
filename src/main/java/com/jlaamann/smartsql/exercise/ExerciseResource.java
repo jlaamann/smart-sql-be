@@ -11,8 +11,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class ExerciseResource {
 
+    private final ExerciseService exerciseService;
+
     @PostMapping("/exercise")
-    ExerciseResult validateAnswer(@RequestBody ExerciseValidationModel params){
-        return new ExerciseResult(QueryResult.OK);
+    ExerciseResult validateSql(@RequestBody ExerciseValidationModel params){
+        return exerciseService.validateSql(params);
     }
 }
