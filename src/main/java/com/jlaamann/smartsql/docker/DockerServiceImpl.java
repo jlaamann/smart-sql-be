@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -18,7 +19,7 @@ public class DockerServiceImpl implements DockerService {
     public String getContainer() {
         String containerName = getContainerName();
         try { // todo vacant port
-            List<String> command = Arrays.asList("/bin/bash", "./docker_startup.sh", getContainerName(), "5433");
+            List<String> command = Arrays.asList("/bin/bash", "./docker_startup.sh", containerName, "5433");
             CommandLineUtil.runCommand(command, getScriptPath());
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
@@ -28,14 +29,13 @@ public class DockerServiceImpl implements DockerService {
     }
 
     private String getContainerName() {
-        return "test";
-//        return UUID.randomUUID().toString();
+        return UUID.randomUUID().toString().substring(0, 8);
     }
 
     @Override
     public void removeContainer(String containerName) {
         try {
-            List<String> command = Arrays.asList("/bin/bash", "./docker_remove.sh", getContainerName());
+            List<String> command = Arrays.asList("/bin/bash", "./docker_remove.sh", containerName);
             CommandLineUtil.runCommand(command, getScriptPath());
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
