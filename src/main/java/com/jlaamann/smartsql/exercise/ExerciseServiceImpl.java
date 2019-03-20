@@ -28,6 +28,7 @@ public class ExerciseServiceImpl implements ExerciseService {
         ExerciseResult result;
         if (exercise.getType() == StatementType.SELECT) {
             result =  validateSelect(exercise, params.getSql(), containerName);
+            // todo run query again on default db and map to objects to show feedback
         } else {
             result = new ExerciseResult(QueryResult.FAIL);
         }

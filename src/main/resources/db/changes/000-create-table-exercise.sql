@@ -1,8 +1,9 @@
 --liquibase formatted sql
 
---changeset johannes:000-create-table-exercise-ddl
+--changeset johannes:0001-create-table-exercise-ddl
+DROP TABLE exercise;
 CREATE TABLE exercise (
-  id SERIAL PRIMARY KEY,
+  id SERIAL,
   chapter_id INTEGER,
   question TEXT,
   answer TEXT,
