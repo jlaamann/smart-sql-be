@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -36,7 +37,9 @@ public class ExerciseServiceImpl implements ExerciseService {
 
     private ExerciseResult validateSelect(Exercise exercise, String containerName) {
         List<String> command = Arrays.asList("echo $USER");
+        List<String> output = new ArrayList<>();
         try {
+//            CommandLineUtil.runCommand(command, PathUtil.getEvalScriptPath(), x -> output.add(x));
             CommandLineUtil.runCommand(command, PathUtil.getEvalScriptPath());
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();

@@ -34,8 +34,10 @@ public class DockerServiceImpl implements DockerService {
 
     private String getVacantPort() throws IOException {
         ServerSocket socket = new ServerSocket(0);
-        socket.setReuseAddress(true);
-        return String.valueOf(socket.getLocalPort());
+        socket.setReuseAddress(false);
+        String port = String.valueOf(socket.getLocalPort());
+        socket.close();
+        return port;
     }
 
     @Override
