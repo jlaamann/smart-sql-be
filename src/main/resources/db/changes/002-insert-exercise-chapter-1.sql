@@ -1,18 +1,18 @@
 --liquibase formatted sql
 
---changeset johannes:0024-insert-exercise-chapter-1
-insert into exercise (answer, chapter_id, question, test_query, type) values
-('SELECT * FROM film WHERE title = ''L''''Atalante'';',
- 1,
- 'Leia tabelist FILM kirjed, mille pealkiri (title) on "L''Atalante"',
- 'SELECT * FROM film WHERE title = ''L''''Atalante'';',
- 'SELECT');
-
+--changeset johannes:0025-insert-exercise-chapter-1
 insert into exercise (answer, chapter_id, question, test_query, type) values
 ('SELECT * FROM film WHERE country = ''Italy'';',
  1,
  'Leia tabelist FILM kirjed, mille riigiks (country) on Itaalia (Italy)',
  'SELECT * FROM film WHERE country = ''Italy'';',
+ 'SELECT');
+
+insert into exercise (answer, chapter_id, question, test_query, type) values
+('SELECT * FROM film WHERE title = ''L''''Atalante'';',
+ 1,
+ 'Leia tabelist FILM kirjed, mille pealkiri (title) on "L''Atalante"',
+ 'SELECT * FROM film WHERE title = ''L''''Atalante'';',
  'SELECT');
 
 insert into exercise (answer, chapter_id, question, test_query, type) values
