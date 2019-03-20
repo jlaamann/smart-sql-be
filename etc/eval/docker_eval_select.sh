@@ -1,4 +1,7 @@
 #!/bin/bash
+
+./wait.sh;
+
 INPUT_SQL=$2
 CORRECT_SQL=$3
 CREATE_A="CREATE OR REPLACE VIEW v_input AS $INPUT_SQL"

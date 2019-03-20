@@ -27,7 +27,7 @@ public class ExerciseServiceImpl implements ExerciseService {
         String containerName = dockerService.getContainer();
         ExerciseResult result;
         if (exercise.getType() == StatementType.SELECT) {
-            result =  validateSelect(exercise, containerName);
+            result =  validateSelect(exercise, params.getSql(), containerName);
         } else {
             result = new ExerciseResult(QueryResult.FAIL);
         }
@@ -35,12 +35,15 @@ public class ExerciseServiceImpl implements ExerciseService {
         return result;
     }
 
-    private ExerciseResult validateSelect(Exercise exercise, String containerName) {
-        List<String> command = Arrays.asList("echo $USER");
+    private ExerciseResult validateSelect(Exercise exercise, String sql, String containerName) {
+        List<String> command = Arrays.asList("./docker_eval_select.sh", containerName, sql, exercise.getTestQuery());
         List<String> output = new ArrayList<>();
         try {
 //            CommandLineUtil.runCommand(command, PathUtil.getEvalScriptPath(), x -> output.add(x));
-            CommandLineUtil.runCommand(command, PathUtil.getEvalScriptPath());
+            CommandLineUtil.runCommand(command, PathUtil.getEvalScriptPath(), line -> {
+                System.out.println(line);
+                output.add(line);
+            });
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
             return new ExerciseResult(QueryResult.FAIL);
