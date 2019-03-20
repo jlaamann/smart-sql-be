@@ -23,17 +23,31 @@ public class ExerciseServiceImpl implements ExerciseService {
 
     @Override
     public ExerciseResult validateSql(ExerciseValidationModel params) {
+        if (params.getSql().trim().length() == 0) {
+            return new ExerciseResult(QueryResult.FAIL);
+        }
         Exercise exercise = exerciseRepository.findById(params.getId()).get();
         String containerName = dockerService.getContainer();
         ExerciseResult result;
         if (exercise.getType() == StatementType.SELECT) {
             result =  validateSelect(exercise, params.getSql(), containerName);
             // todo run query again on default db and map to objects to show feedback
+        } else if (exercise.getType() == StatementType.ORDER) {
+            result = validateSelect(exercise, params.getSql(), containerName);
+            if (result.getQueryResult() == QueryResult.FAIL) {
+                return result;
+            }
+            result = validateOrderBy(exercise, params.getSql(), containerName);
         } else {
             result = new ExerciseResult(QueryResult.FAIL);
         }
         dockerService.removeContainer(containerName);
         return result;
+    }
+
+    private ExerciseResult validateOrderBy(Exercise exercise, String sql, String containerName) {
+        // todo to implement
+        return new ExerciseResult(QueryResult.OK);
     }
 
     private ExerciseResult validateSelect(Exercise exercise, String sql, String containerName) {
