@@ -39,7 +39,6 @@ public class ExerciseServiceImpl implements ExerciseService {
         List<String> command = Arrays.asList("./docker_eval_select.sh", containerName, sql, exercise.getTestQuery());
         List<String> output = new ArrayList<>();
         try {
-//            CommandLineUtil.runCommand(command, PathUtil.getEvalScriptPath(), x -> output.add(x));
             CommandLineUtil.runCommand(command, PathUtil.getEvalScriptPath(), line -> {
                 System.out.println(line);
                 output.add(line);
