@@ -47,6 +47,6 @@ public class ExerciseServiceImpl implements ExerciseService {
             e.printStackTrace();
             return new ExerciseResult(QueryResult.FAIL);
         }
-        return new ExerciseResult(QueryResult.OK);
+        return output.contains("(0 rows)") ? new ExerciseResult(QueryResult.OK) : new ExerciseResult(QueryResult.FAIL);
     }
 }
