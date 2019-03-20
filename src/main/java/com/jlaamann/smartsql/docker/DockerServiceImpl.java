@@ -1,13 +1,12 @@
 package com.jlaamann.smartsql.docker;
 
 import com.jlaamann.smartsql.util.CommandLineUtil;
+import com.jlaamann.smartsql.util.PathUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.net.ServerSocket;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -20,8 +19,8 @@ public class DockerServiceImpl implements DockerService {
     public String getContainer() {
         String containerName = getContainerName();
         try {
-            List<String> command = Arrays.asList("/bin/bash", "./docker_startup.sh", containerName, getVacantPort());
-            CommandLineUtil.runCommand(command, getScriptPath());
+            List<String> command = Arrays.asList("./docker_startup.sh", containerName, getVacantPort());
+            CommandLineUtil.runCommand(command, PathUtil.getScriptPath());
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
             return null;
@@ -42,14 +41,11 @@ public class DockerServiceImpl implements DockerService {
     @Override
     public void removeContainer(String containerName) {
         try {
-            List<String> command = Arrays.asList("/bin/bash", "./docker_remove.sh", containerName);
-            CommandLineUtil.runCommand(command, getScriptPath());
+            List<String> command = Arrays.asList("./docker_remove.sh", containerName);
+            CommandLineUtil.runCommand(command, PathUtil.getScriptPath());
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
     }
 
-    private Path getScriptPath() {
-        return Paths.get(System.getProperty("user.dir")).resolve("etc");
-    }
 }

@@ -1,12 +1,10 @@
 package com.jlaamann.smartsql.exercise.model;
 
+import com.jlaamann.smartsql.exercise.StatementType;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
 @Data
@@ -19,5 +17,6 @@ public class Exercise {
     private String question;
     private String answer;
     private String testQuery;
-    private String type;
+    @Enumerated(EnumType.STRING)
+    private StatementType type;
 }
