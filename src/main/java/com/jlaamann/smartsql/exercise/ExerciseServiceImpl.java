@@ -35,8 +35,7 @@ public class ExerciseServiceImpl implements ExerciseService {
         String containerName = dockerService.getContainer();
         ExerciseResult result;
         if (exercise.getType() == StatementType.SELECT) {
-//            result =  validateSelect(exercise, params.getSql(), containerName);
-            result =  validateOrderBy(exercise, params.getSql(), containerName);
+            result =  validateSelect(exercise, params.getSql(), containerName);
             // todo run query again on default db and map to objects to show feedback
         } else if (exercise.getType() == StatementType.ORDER) {
             result = validateSelect(exercise, params.getSql(), containerName);
