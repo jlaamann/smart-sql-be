@@ -6,6 +6,6 @@ import org.springframework.data.repository.CrudRepository;
 import java.util.List;
 
 public interface FilmRepository extends CrudRepository<Film, Long> {
-    List<Film> findAllByOrderByDirectorAscTitleAsc();
+    List<Film> findAllByOrderByCountryAscRuntimeAsc();
     List<Film> findAllByOrderByVotesDesc();
 }

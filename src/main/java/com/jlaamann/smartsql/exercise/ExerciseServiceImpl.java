@@ -60,9 +60,14 @@ public class ExerciseServiceImpl implements ExerciseService {
         // step 2: check ordering
         List<String> output = runQuery(sql, containerName);
         List<Film> outputObjects = parseOutput(output);
+        List<Film> correctResult = new ArrayList<>();
         // todo: remove hardcoded validation
         //  atm requires that exercise queries start with select * (or at least contain id field)
-        List<Film> correctResult = filmRepository.findAllByOrderByVotesDesc();
+        if (exercise.getTestQuery().equals("SELECT * FROM film ORDER BY votes DESC;")) {
+            correctResult = filmRepository.findAllByOrderByVotesDesc();
+        } else if (exercise.getTestQuery().equals("SELECT * FROM film ORDER BY country, runtime ASC;")) {
+            correctResult = filmRepository.findAllByOrderByCountryAscRuntimeAsc();
+        }
         return outputObjects != null && isSameOrder(outputObjects, correctResult) ? new ExerciseResult(QueryResult.OK)
                 : new ExerciseResult(QueryResult.FAIL);
     }
@@ -77,7 +82,10 @@ public class ExerciseServiceImpl implements ExerciseService {
         for (String line : output.subList(2, output.size() - 1)) {
             List<String> columnValues = Arrays.stream(line.split("[|]"))
                     .map(s -> s = s.trim()).collect(Collectors.toList());
-            films.add(createFilm(columns, columnValues));
+            Film film = createFilm(columns, columnValues);
+            if (film != null) {
+                films.add(createFilm(columns, columnValues));
+            }
         }
         return films;
     }
