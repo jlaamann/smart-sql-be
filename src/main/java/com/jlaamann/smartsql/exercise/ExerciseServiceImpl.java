@@ -113,7 +113,7 @@ public class ExerciseServiceImpl implements ExerciseService {
             return false;
         }
         for (int i = 0; i < listA.size(); i++) {
-            if (listA.get(i).getId() != listB.get(i).getId()) {
+            if (!listA.get(i).equals(listB.get(i))) {
                 return false;
             }
         }
