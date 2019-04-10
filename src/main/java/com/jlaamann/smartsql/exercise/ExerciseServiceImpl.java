@@ -57,16 +57,9 @@ public class ExerciseServiceImpl implements ExerciseService {
             return selectResult;
         }
         // step 2: check ordering
-        List<String> output = runQuery(sql, containerName);
-        List<Film> outputObjects = parseOutput(output);
-        List<Film> correctResult = new ArrayList<>();
-        // todo: remove hardcoded validation
-        //  atm requires that exercise queries start with select * (or at least contain id field)
-        if (exercise.getTestQuery().equals("SELECT * FROM film ORDER BY votes DESC;")) {
-            correctResult = filmRepository.findAllByOrderByVotesDesc();
-        } else if (exercise.getTestQuery().equals("SELECT * FROM film ORDER BY country, runtime ASC;")) {
-            correctResult = filmRepository.findAllByOrderByCountryAscRuntimeAsc();
-        }
+        List<Film> outputObjects = runQuery(sql, containerName);
+        List<Film> correctResult = runQuery(exercise.getTestQuery(), containerName);
+        // todo: atm requires that order by exercise queries contain id field
         return outputObjects != null && isSameOrder(outputObjects, correctResult) ? new ExerciseResult(QueryResult.OK)
                 : new ExerciseResult(QueryResult.FAIL);
     }
@@ -127,7 +120,7 @@ public class ExerciseServiceImpl implements ExerciseService {
         return true;
     }
 
-    private List<String> runQuery(String sql, String containerName) {
+    private List<Film> runQuery(String sql, String containerName) {
         List<String> command = Arrays.asList("./docker_exec.sh", containerName, sql);
         List<String> output = new ArrayList<>();
         try {
@@ -139,7 +132,7 @@ public class ExerciseServiceImpl implements ExerciseService {
             e.printStackTrace();
             return new ArrayList<>();
         }
-        return output;
+        return parseOutput(output);
     }
 
     private ExerciseResult validateSelect(Exercise exercise, String sql, String containerName) {
