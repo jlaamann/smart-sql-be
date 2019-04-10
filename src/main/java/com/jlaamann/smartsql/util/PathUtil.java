@@ -8,10 +8,17 @@ public class PathUtil {
     // NB! Keep in sync with etc folder structure
 
     public static Path getScriptPath() {
-        return Paths.get(System.getProperty("user.dir")).resolve("etc");
+        if (SystemUtil.getOperatingSystem() == SystemUtil.OperatingSystem.LINUX) {
+            return Paths.get(System.getProperty("user.dir")).resolve("etc/linux");
+
+        }
+        return Paths.get(System.getProperty("user.dir")).resolve("etc/mac");
     }
 
     public static Path getEvalScriptPath() {
-        return Paths.get(System.getProperty("user.dir")).resolve("etc/eval");
+        if (SystemUtil.getOperatingSystem() == SystemUtil.OperatingSystem.LINUX) {
+            return Paths.get(System.getProperty("user.dir")).resolve("etc/linux/eval");
+        }
+        return Paths.get(System.getProperty("user.dir")).resolve("etc/mac/eval");
     }
 }

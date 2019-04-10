@@ -57,14 +57,14 @@ public class ExerciseServiceImpl implements ExerciseService {
             return selectResult;
         }
         // step 2: check ordering
-        List<Film> outputObjects = runQuery(sql, containerName);
-        List<Film> correctResult = runQuery(exercise.getTestQuery(), containerName);
+        List<Film> outputObjects = mapQueryToFilm(sql, containerName);
+        List<Film> correctResult = mapQueryToFilm(exercise.getTestQuery(), containerName);
         // todo: atm requires that order by exercise queries contain id field
         return outputObjects != null && isSameOrder(outputObjects, correctResult) ? new ExerciseResult(QueryResult.OK)
                 : new ExerciseResult(QueryResult.FAIL);
     }
 
-    private List<Film> parseOutput(List<String> output) {
+    private List<Film> parseOutputToFilm(List<String> output) {
         if (output.isEmpty()) {
             return null;
         }
@@ -120,7 +120,7 @@ public class ExerciseServiceImpl implements ExerciseService {
         return true;
     }
 
-    private List<Film> runQuery(String sql, String containerName) {
+    private List<Film> mapQueryToFilm(String sql, String containerName) {
         List<String> command = Arrays.asList("./docker_exec.sh", containerName, sql);
         List<String> output = new ArrayList<>();
         try {
@@ -132,7 +132,7 @@ public class ExerciseServiceImpl implements ExerciseService {
             e.printStackTrace();
             return new ArrayList<>();
         }
-        return parseOutput(output);
+        return parseOutputToFilm(output);
     }
 
     private ExerciseResult validateSelect(Exercise exercise, String sql, String containerName) {
