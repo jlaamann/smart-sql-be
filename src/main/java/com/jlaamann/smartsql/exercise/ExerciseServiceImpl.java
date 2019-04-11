@@ -4,7 +4,6 @@ import com.jlaamann.smartsql.docker.DockerService;
 import com.jlaamann.smartsql.exercise.model.Exercise;
 import com.jlaamann.smartsql.exercise.model.ExerciseResult;
 import com.jlaamann.smartsql.exercise.model.ExerciseValidationModel;
-import com.jlaamann.smartsql.exercise.testTable.FilmRepository;
 import com.jlaamann.smartsql.exercise.testTable.model.Film;
 import com.jlaamann.smartsql.util.CommandLineUtil;
 import com.jlaamann.smartsql.util.PathUtil;
@@ -24,7 +23,6 @@ public class ExerciseServiceImpl implements ExerciseService {
 
     private final DockerService dockerService;
     private final ExerciseRepository exerciseRepository;
-    private final FilmRepository filmRepository;
 
     @Override
     public ExerciseResult validateSql(ExerciseValidationModel params) {
@@ -36,13 +34,14 @@ public class ExerciseServiceImpl implements ExerciseService {
         ExerciseResult result;
         if (exercise.getType() == StatementType.SELECT) {
             result =  validateSelect(exercise, params.getSql(), containerName);
-            // todo run query again on default db and map to objects to show feedback
         } else if (exercise.getType() == StatementType.ORDER) {
             result = validateSelect(exercise, params.getSql(), containerName);
             if (result.getQueryResult() == QueryResult.FAIL) {
                 return result;
             }
             result = validateOrderBy(exercise, params.getSql(), containerName);
+        } else if (exercise.getType() == StatementType.CREATE_TABLE) {
+            result = validateCreateTable(exercise, params.getSql(), containerName);
         } else {
             result = new ExerciseResult(QueryResult.FAIL);
         }
@@ -59,9 +58,27 @@ public class ExerciseServiceImpl implements ExerciseService {
         // step 2: check ordering
         List<Film> outputObjects = mapQueryToFilm(sql, containerName);
         List<Film> correctResult = mapQueryToFilm(exercise.getTestQuery(), containerName);
-        // todo: atm requires that order by exercise queries contain id field
         return outputObjects != null && isSameOrder(outputObjects, correctResult) ? new ExerciseResult(QueryResult.OK)
                 : new ExerciseResult(QueryResult.FAIL);
+    }
+
+    private ExerciseResult validateCreateTable(Exercise exercise, String sql, String containerName) {
+        List<String> commandCreate = Arrays.asList("./docker_exec.sh", containerName, sql);
+        List<String> commandTest = Arrays.asList("./docker_exec.sh", containerName, exercise.getTestQuery());
+        List<String> output = new ArrayList<>();
+        try {
+            CommandLineUtil.runCommand(Arrays.asList("./wait.sh"), PathUtil.getEvalScriptPath());
+            CommandLineUtil.runCommand(commandCreate, PathUtil.getEvalScriptPath());
+            CommandLineUtil.runCommand(commandTest, PathUtil.getEvalScriptPath(), line -> {
+                System.out.println(line);
+                output.add(line);
+            });
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+            return new ExerciseResult(QueryResult.FAIL);
+        }
+        return output.stream().noneMatch(line -> line.toLowerCase().contains("error")) ?
+                new ExerciseResult(QueryResult.OK) : new ExerciseResult(QueryResult.FAIL);
     }
 
     private List<Film> parseOutputToFilm(List<String> output) {
