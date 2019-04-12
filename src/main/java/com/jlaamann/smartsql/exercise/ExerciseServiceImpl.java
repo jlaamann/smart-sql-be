@@ -71,7 +71,22 @@ public class ExerciseServiceImpl implements ExerciseService {
     }
 
     private ExerciseResult validateUpdate(Exercise exercise, String sql, String containerName) {
-        return null;
+        List<String> update = Arrays.asList("./docker_exec.sh", containerName, sql);
+        List<String> eval = Arrays.asList("./docker_exec.sh", containerName, exercise.getTestQuery());
+        List<String> output = new ArrayList<>();
+        try {
+            CommandLineUtil.runCommand(Arrays.asList("./wait.sh"), PathUtil.getEvalScriptPath());
+            CommandLineUtil.runCommand(update, PathUtil.getEvalScriptPath());
+            CommandLineUtil.runCommand(eval, PathUtil.getEvalScriptPath(), line -> {
+                System.out.println(line);
+                output.add(line);
+            });
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+            return new ExerciseResult(QueryResult.FAIL);
+        }
+        return output.stream().anyMatch(line -> line.contains("(1 row)")) ? new ExerciseResult(QueryResult.OK)
+                : new ExerciseResult(QueryResult.FAIL);
     }
 
     private ExerciseResult validateInsert(Exercise exercise, String sql, String containerName) {
