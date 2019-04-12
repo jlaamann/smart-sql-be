@@ -40,11 +40,38 @@ public class ExerciseServiceImpl implements ExerciseService {
             result = validateCreateTable(exercise, params.getSql(), containerName);
         } else if (exercise.getType() == StatementType.INSERT) {
             result = validateInsert(exercise, params.getSql(), containerName);
+        } else if (exercise.getType() == StatementType.UPDATE) {
+            result = validateUpdate(exercise, params.getSql(), containerName);
+        } else if (exercise.getType() == StatementType.DELETE) {
+            result = validateDelete(exercise, params.getSql(), containerName);
         } else {
             result = new ExerciseResult(QueryResult.FAIL);
         }
         dockerService.removeContainer(containerName);
         return result;
+    }
+
+    private ExerciseResult validateDelete(Exercise exercise, String sql, String containerName) {
+        List<String> delete = Arrays.asList("./docker_exec.sh", containerName, sql);
+        List<String> eval = Arrays.asList("./docker_exec.sh", containerName, exercise.getTestQuery());
+        List<String> output = new ArrayList<>();
+        try {
+            CommandLineUtil.runCommand(Arrays.asList("./wait.sh"), PathUtil.getEvalScriptPath());
+            CommandLineUtil.runCommand(delete, PathUtil.getEvalScriptPath());
+            CommandLineUtil.runCommand(eval, PathUtil.getEvalScriptPath(), line -> {
+                System.out.println(line);
+                output.add(line);
+            });
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+            return new ExerciseResult(QueryResult.FAIL);
+        }
+        return output.stream().anyMatch(line -> line.contains("(0 rows)")) ? new ExerciseResult(QueryResult.OK)
+                : new ExerciseResult(QueryResult.FAIL);
+    }
+
+    private ExerciseResult validateUpdate(Exercise exercise, String sql, String containerName) {
+        return null;
     }
 
     private ExerciseResult validateInsert(Exercise exercise, String sql, String containerName) {
