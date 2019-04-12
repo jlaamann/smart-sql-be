@@ -17,6 +17,7 @@ public class Exercise {
     private String question;
     private String answer;
     private String testQuery;
+    private String createTableSql;
     @Enumerated(EnumType.STRING)
     private StatementType type;
 }

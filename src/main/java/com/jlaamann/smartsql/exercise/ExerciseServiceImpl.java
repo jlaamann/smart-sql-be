@@ -48,17 +48,15 @@ public class ExerciseServiceImpl implements ExerciseService {
     }
 
     private ExerciseResult validateInsert(Exercise exercise, String sql, String containerName) {
-        List<String> commandCreateTable = Arrays.asList("./docker_exec.sh", containerName, exercise.getTestQuery());
+        List<String> commandCreateTable = Arrays.asList("./docker_exec.sh", containerName, exercise.getCreateTableSql());
         List<String> commandInsert = Arrays.asList("./docker_exec.sh", containerName, sql);
-        // TODO: remove hardcoded evaluation, add new field to exercise table?
-        List<String> hardCodedEval = Arrays.asList("./docker_exec.sh", containerName,
-                "SELECT * FROM raamat WHERE pealkiri = 'Sõda ja rahu' AND autor = 'Lev Tolstoi' AND pikkus = 1225");
+        List<String> eval = Arrays.asList("./docker_exec.sh", containerName, exercise.getTestQuery());
         List<String> output = new ArrayList<>();
         try {
             CommandLineUtil.runCommand(Arrays.asList("./wait.sh"), PathUtil.getEvalScriptPath());
             CommandLineUtil.runCommand(commandCreateTable, PathUtil.getEvalScriptPath());
             CommandLineUtil.runCommand(commandInsert, PathUtil.getEvalScriptPath());
-            CommandLineUtil.runCommand(hardCodedEval, PathUtil.getEvalScriptPath(), line -> {
+            CommandLineUtil.runCommand(eval, PathUtil.getEvalScriptPath(), line -> {
                 System.out.println(line);
                 output.add(line);
             });
