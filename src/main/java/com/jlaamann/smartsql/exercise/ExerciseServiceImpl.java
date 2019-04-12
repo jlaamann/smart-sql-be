@@ -35,18 +35,39 @@ public class ExerciseServiceImpl implements ExerciseService {
         if (exercise.getType() == StatementType.SELECT) {
             result =  validateSelect(exercise, params.getSql(), containerName);
         } else if (exercise.getType() == StatementType.ORDER) {
-            result = validateSelect(exercise, params.getSql(), containerName);
-            if (result.getQueryResult() == QueryResult.FAIL) {
-                return result;
-            }
             result = validateOrderBy(exercise, params.getSql(), containerName);
         } else if (exercise.getType() == StatementType.CREATE_TABLE) {
             result = validateCreateTable(exercise, params.getSql(), containerName);
+        } else if (exercise.getType() == StatementType.INSERT) {
+            result = validateInsert(exercise, params.getSql(), containerName);
         } else {
             result = new ExerciseResult(QueryResult.FAIL);
         }
         dockerService.removeContainer(containerName);
         return result;
+    }
+
+    private ExerciseResult validateInsert(Exercise exercise, String sql, String containerName) {
+        List<String> commandCreateTable = Arrays.asList("./docker_exec.sh", containerName, exercise.getTestQuery());
+        List<String> commandInsert = Arrays.asList("./docker_exec.sh", containerName, sql);
+        // TODO: remove hardcoded evaluation, add new field to exercise table?
+        List<String> hardCodedEval = Arrays.asList("./docker_exec.sh", containerName,
+                "SELECT * FROM raamat WHERE pealkiri = 'Sõda ja rahu' AND autor = 'Lev Tolstoi' AND pikkus = 1225");
+        List<String> output = new ArrayList<>();
+        try {
+            CommandLineUtil.runCommand(Arrays.asList("./wait.sh"), PathUtil.getEvalScriptPath());
+            CommandLineUtil.runCommand(commandCreateTable, PathUtil.getEvalScriptPath());
+            CommandLineUtil.runCommand(commandInsert, PathUtil.getEvalScriptPath());
+            CommandLineUtil.runCommand(hardCodedEval, PathUtil.getEvalScriptPath(), line -> {
+                System.out.println(line);
+                output.add(line);
+            });
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+            return new ExerciseResult(QueryResult.FAIL);
+        }
+        return output.stream().anyMatch(line -> line.contains("(1 row)")) ? new ExerciseResult(QueryResult.OK)
+                : new ExerciseResult(QueryResult.FAIL);
     }
 
     private ExerciseResult validateOrderBy(Exercise exercise, String sql, String containerName) {
@@ -77,6 +98,7 @@ public class ExerciseServiceImpl implements ExerciseService {
             e.printStackTrace();
             return new ExerciseResult(QueryResult.FAIL);
         }
+        // TODO: check column count as well
         return output.stream().noneMatch(line -> line.toLowerCase().contains("error")) ?
                 new ExerciseResult(QueryResult.OK) : new ExerciseResult(QueryResult.FAIL);
     }
