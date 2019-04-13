@@ -2,7 +2,6 @@ package com.jlaamann.smartsql.util;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
@@ -16,8 +15,6 @@ public class CommandLineUtil {
     public static void runCommand(List<String> command, Path path, Consumer<String> consumer)
             throws IOException, InterruptedException{
         ProcessBuilder builder = new ProcessBuilder();
-        command = new LinkedList<>(command);
-        command.add(0, "/bin/bash");
         builder.command(command);
         builder.redirectErrorStream(true);
         builder.directory(path.toFile());

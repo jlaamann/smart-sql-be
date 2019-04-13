@@ -2,11 +2,9 @@
 
 ## Configuration
 You must have Docker installed and a working Postgres database.
-Edit /etc/sudoers file and add the locations of etc/docker_*.sh scripts
-there (so that they could be run without specifying password) - required only on Linux
+Edit /etc/sudoers file and allow user to run all commands without sudo
 ```
-myusername ALL=(ALL) NOPASSWD: /path/to/docker_startup.sh
-myusername ALL=(ALL) NOPASSWD: /path/to/docker_remove.sh
+myusername ALL=(ALL) NOPASSWD: ALL
 ```
 Add application.properties to resources/ (see sample.application.properties). 
 
