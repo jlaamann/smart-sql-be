@@ -6,6 +6,7 @@ import com.jlaamann.smartsql.exercise.model.ExerciseResult;
 import com.jlaamann.smartsql.exercise.model.ExerciseValidationModel;
 import com.jlaamann.smartsql.exercise.testTable.model.Film;
 import com.jlaamann.smartsql.util.CommandLineUtil;
+import com.jlaamann.smartsql.util.CommandUtil;
 import com.jlaamann.smartsql.util.PathUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -52,8 +53,8 @@ public class ExerciseServiceImpl implements ExerciseService {
     }
 
     private ExerciseResult validateDelete(Exercise exercise, String sql, String containerName) {
-        List<String> delete = Arrays.asList("./docker_exec.sh", containerName, sql);
-        List<String> eval = Arrays.asList("./docker_exec.sh", containerName, exercise.getTestQuery());
+        List<String> delete = Arrays.asList(CommandUtil.getDockerExecCmd(), containerName, sql);
+        List<String> eval = Arrays.asList(CommandUtil.getDockerExecCmd(), containerName, exercise.getTestQuery());
         List<String> output = new ArrayList<>();
         try {
             CommandLineUtil.runCommand(Arrays.asList("./wait.sh"), PathUtil.getEvalScriptPath());
@@ -71,8 +72,8 @@ public class ExerciseServiceImpl implements ExerciseService {
     }
 
     private ExerciseResult validateUpdate(Exercise exercise, String sql, String containerName) {
-        List<String> update = Arrays.asList("./docker_exec.sh", containerName, sql);
-        List<String> eval = Arrays.asList("./docker_exec.sh", containerName, exercise.getTestQuery());
+        List<String> update = Arrays.asList(CommandUtil.getDockerExecCmd(), containerName, sql);
+        List<String> eval = Arrays.asList(CommandUtil.getDockerExecCmd(), containerName, exercise.getTestQuery());
         List<String> output = new ArrayList<>();
         try {
             CommandLineUtil.runCommand(Arrays.asList("./wait.sh"), PathUtil.getEvalScriptPath());
@@ -90,9 +91,9 @@ public class ExerciseServiceImpl implements ExerciseService {
     }
 
     private ExerciseResult validateInsert(Exercise exercise, String sql, String containerName) {
-        List<String> commandCreateTable = Arrays.asList("./docker_exec.sh", containerName, exercise.getCreateTableSql());
-        List<String> commandInsert = Arrays.asList("./docker_exec.sh", containerName, sql);
-        List<String> eval = Arrays.asList("./docker_exec.sh", containerName, exercise.getTestQuery());
+        List<String> commandCreateTable = Arrays.asList(CommandUtil.getDockerExecCmd(), containerName, exercise.getCreateTableSql());
+        List<String> commandInsert = Arrays.asList(CommandUtil.getDockerExecCmd(), containerName, sql);
+        List<String> eval = Arrays.asList(CommandUtil.getDockerExecCmd(), containerName, exercise.getTestQuery());
         List<String> output = new ArrayList<>();
         try {
             CommandLineUtil.runCommand(Arrays.asList("./wait.sh"), PathUtil.getEvalScriptPath());
@@ -124,8 +125,8 @@ public class ExerciseServiceImpl implements ExerciseService {
     }
 
     private ExerciseResult validateCreateTable(Exercise exercise, String sql, String containerName) {
-        List<String> commandCreate = Arrays.asList("./docker_exec.sh", containerName, sql);
-        List<String> commandTest = Arrays.asList("./docker_exec.sh", containerName, exercise.getTestQuery());
+        List<String> commandCreate = Arrays.asList(CommandUtil.getDockerExecCmd(), containerName, sql);
+        List<String> commandTest = Arrays.asList(CommandUtil.getDockerExecCmd(), containerName, exercise.getTestQuery());
         List<String> output = new ArrayList<>();
         try {
             CommandLineUtil.runCommand(Arrays.asList("./wait.sh"), PathUtil.getEvalScriptPath());
@@ -200,7 +201,7 @@ public class ExerciseServiceImpl implements ExerciseService {
     }
 
     private List<Film> mapQueryToFilm(String sql, String containerName) {
-        List<String> command = Arrays.asList("./docker_exec.sh", containerName, sql);
+        List<String> command = Arrays.asList(CommandUtil.getDockerExecCmd(), containerName, sql);
         List<String> output = new ArrayList<>();
         try {
             CommandLineUtil.runCommand(command, PathUtil.getEvalScriptPath(), line -> {
@@ -215,7 +216,7 @@ public class ExerciseServiceImpl implements ExerciseService {
     }
 
     private ExerciseResult validateSelect(Exercise exercise, String sql, String containerName) {
-        List<String> command = Arrays.asList("./docker_eval_select.sh", containerName, sql, exercise.getTestQuery());
+        List<String> command = Arrays.asList(CommandUtil.getDockerEvalSelectCmd(), containerName, sql, exercise.getTestQuery());
         List<String> output = new ArrayList<>();
         try {
             CommandLineUtil.runCommand(command, PathUtil.getEvalScriptPath(), line -> {

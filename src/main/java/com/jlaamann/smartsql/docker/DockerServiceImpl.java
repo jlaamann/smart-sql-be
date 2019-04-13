@@ -1,6 +1,7 @@
 package com.jlaamann.smartsql.docker;
 
 import com.jlaamann.smartsql.util.CommandLineUtil;
+import com.jlaamann.smartsql.util.CommandUtil;
 import com.jlaamann.smartsql.util.PathUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,7 +20,7 @@ public class DockerServiceImpl implements DockerService {
     public String getContainer() {
         String containerName = getContainerName();
         try {
-            List<String> command = Arrays.asList("./docker_startup.sh", containerName, getVacantPort());
+            List<String> command = Arrays.asList(CommandUtil.getDockerStartupCmd(), containerName, getVacantPort());
             CommandLineUtil.runCommand(command, PathUtil.getScriptPath());
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
@@ -43,7 +44,7 @@ public class DockerServiceImpl implements DockerService {
     @Override
     public void removeContainer(String containerName) {
         try {
-            List<String> command = Arrays.asList("./docker_remove.sh", containerName);
+            List<String> command = Arrays.asList(CommandUtil.getDockerRemoveCmd(), containerName);
             CommandLineUtil.runCommand(command, PathUtil.getScriptPath());
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
