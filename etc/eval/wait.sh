@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Initializing postgres db with dump data takes about 1.5 seconds
-# todo: find a better way, check if test able exists?
+# todo: find a better way?
 
 sleep 2.5;
 
