@@ -4,6 +4,7 @@ import com.jlaamann.smartsql.docker.DockerService;
 import com.jlaamann.smartsql.exercise.model.Exercise;
 import com.jlaamann.smartsql.exercise.model.ExerciseResult;
 import com.jlaamann.smartsql.exercise.model.ExerciseValidationModel;
+import com.jlaamann.smartsql.exercise.model.QueryOutput;
 import com.jlaamann.smartsql.exercise.testTable.model.Film;
 import com.jlaamann.smartsql.util.CommandLineUtil;
 import com.jlaamann.smartsql.util.CommandUtil;
@@ -118,10 +119,12 @@ public class ExerciseServiceImpl implements ExerciseService {
             return selectResult;
         }
         // step 2: check ordering
+        QueryOutput queryOutput = getOutput(sql, containerName);
         List<Film> outputObjects = mapQueryToFilm(sql, containerName);
         List<Film> correctResult = mapQueryToFilm(exercise.getTestQuery(), containerName);
-        return outputObjects != null && isSameOrder(outputObjects, correctResult) ? new ExerciseResult(QueryResult.OK)
-                : new ExerciseResult(QueryResult.FAIL);
+        return outputObjects != null && isSameOrder(outputObjects, correctResult) ?
+                new ExerciseResult(QueryResult.OK, queryOutput.getColumns(), queryOutput.getValues())
+                : new ExerciseResult(QueryResult.FAIL, queryOutput.getColumns(), queryOutput.getValues());
     }
 
     private ExerciseResult validateCreateTable(Exercise exercise, String sql, String containerName) {
@@ -227,6 +230,40 @@ public class ExerciseServiceImpl implements ExerciseService {
             e.printStackTrace();
             return new ExerciseResult(QueryResult.FAIL);
         }
-        return output.contains("(0 rows)") ? new ExerciseResult(QueryResult.OK) : new ExerciseResult(QueryResult.FAIL);
+        QueryOutput queryOutput = getOutput(sql, containerName);
+        return output.contains("(0 rows)") ? new ExerciseResult(QueryResult.OK, queryOutput.getColumns(), queryOutput.getValues())
+                : new ExerciseResult(QueryResult.FAIL, queryOutput.getColumns(), queryOutput.getValues());
     }
+
+    private QueryOutput getOutput(String sql, String containerName) {
+        List<String> command = Arrays.asList(CommandUtil.getDockerExecCmd(), containerName, sql);
+        List<String> output = new ArrayList<>();
+        try {
+            CommandLineUtil.runCommand(command, PathUtil.getEvalScriptPath(), line -> {
+                System.out.println(line);
+                output.add(line);
+            });
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+            return new QueryOutput();
+        }
+        return parseOutputToLines(output);
+    }
+
+    // todo: remove duplication in mapQueryToFilm
+    private QueryOutput parseOutputToLines(List<String> output) {
+        if (output.isEmpty()) {
+            return new QueryOutput();
+        }
+        List<List<String>> values = new ArrayList<>();
+        List<String> columns = Arrays.stream(output.get(0).split("[|]"))
+                .map(s -> s = s.trim()).collect(Collectors.toList());
+        for (String line : output.subList(2, output.size() - 1)) {
+            List<String> columnValues = Arrays.stream(line.split("[|]"))
+                    .map(s -> s = s.trim()).collect(Collectors.toList());
+            values.add(columnValues);
+        }
+        return new QueryOutput(columns, values);
+    }
+
 }
