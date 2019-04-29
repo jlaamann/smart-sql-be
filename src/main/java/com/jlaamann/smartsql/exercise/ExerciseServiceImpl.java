@@ -120,8 +120,9 @@ public class ExerciseServiceImpl implements ExerciseService {
         }
         // step 2: check ordering
         QueryOutput queryOutput = getOutput(sql, containerName);
-        List<Film> outputObjects = mapQueryToFilm(sql, containerName);
-        List<Film> correctResult = mapQueryToFilm(exercise.getTestQuery(), containerName);
+        List<Film> outputObjects = parseOutputToFilm(queryOutput);
+        QueryOutput correctQueryOutput = getOutput(exercise.getTestQuery(), containerName);
+        List<Film> correctResult = parseOutputToFilm(correctQueryOutput);
         return outputObjects != null && isSameOrder(outputObjects, correctResult) ?
                 new ExerciseResult(QueryResult.OK, queryOutput.getColumns(), queryOutput.getValues())
                 : new ExerciseResult(QueryResult.FAIL, queryOutput.getColumns(), queryOutput.getValues());
@@ -147,16 +148,13 @@ public class ExerciseServiceImpl implements ExerciseService {
                 new ExerciseResult(QueryResult.OK) : new ExerciseResult(QueryResult.FAIL);
     }
 
-    private List<Film> parseOutputToFilm(List<String> output) {
-        if (output.isEmpty()) {
-            return null;
-        }
+    private List<Film> parseOutputToFilm(QueryOutput output) {
         List<Film> films = new ArrayList<>();
-        List<String> columns = Arrays.stream(output.get(0).split("[|]"))
-                .map(s -> s = s.trim()).collect(Collectors.toList());
-        for (String line : output.subList(2, output.size() - 1)) {
-            List<String> columnValues = Arrays.stream(line.split("[|]"))
-                    .map(s -> s = s.trim()).collect(Collectors.toList());
+        List<String> columns = output.getColumns();
+        for (List<String> columnValues : output.getValues()) {
+            if (columnValues.size() != columns.size()) {
+                continue;
+            }
             Film film = createFilm(columns, columnValues);
             if (film != null) {
                 films.add(createFilm(columns, columnValues));
@@ -191,6 +189,7 @@ public class ExerciseServiceImpl implements ExerciseService {
         return film;
     }
 
+    // todo: compare strings, not Film objects
     private boolean isSameOrder(List<Film> listA, List<Film> listB) {
         if (listA.size() != listB.size()) {
             return false;
@@ -201,21 +200,6 @@ public class ExerciseServiceImpl implements ExerciseService {
             }
         }
         return true;
-    }
-
-    private List<Film> mapQueryToFilm(String sql, String containerName) {
-        List<String> command = Arrays.asList(CommandUtil.getDockerExecCmd(), containerName, sql);
-        List<String> output = new ArrayList<>();
-        try {
-            CommandLineUtil.runCommand(command, PathUtil.getEvalScriptPath(), line -> {
-                System.out.println(line);
-                output.add(line);
-            });
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-            return new ArrayList<>();
-        }
-        return parseOutputToFilm(output);
     }
 
     private ExerciseResult validateSelect(Exercise exercise, String sql, String containerName) {
@@ -250,7 +234,6 @@ public class ExerciseServiceImpl implements ExerciseService {
         return parseOutputToLines(output);
     }
 
-    // todo: remove duplication in mapQueryToFilm
     private QueryOutput parseOutputToLines(List<String> output) {
         if (output.isEmpty()) {
             return new QueryOutput();
