@@ -2,6 +2,11 @@
 
 ## Configuration
 You must have Docker installed and a working Postgres database.
+
+Rename sample.application.properties to application.properties and add Postgres db name, username and password.
+
+Give executable rights to etc/*.sh files.
+
 ### Run Docker without sudo
 
 ```
